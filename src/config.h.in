@@ -1,11 +1,13 @@
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#define PYSAMP_VERSION "@PYSAMP_VERSION@ (" __DATE__ " " __TIME__ ")"
-#define PYTHON_VERSION "@PYTHON_VERSION@"
+#define PYSAMP_VERSION_STR "@PYSAMP_VERSION@ (" __DATE__ " " __TIME__ ")"
+#define PYTHON_VERSION_STR "@Python3_VERSION@"
 
 #ifndef WIN32
-#define PYTHON_LIBRARY "@PYTHON_STATIC_LIBRARY@" 
+	#define PYTHON_LIBRARY "@Python3_LIBRARIES@"
 #endif
+
+#define PYTHON_HOME L"@PYTHON_HOME@"
 
 #endif

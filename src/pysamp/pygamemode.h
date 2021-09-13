@@ -1,48 +1,53 @@
 #ifndef PYGAMEMODE_H
 #define PYGAMEMODE_H
 
-#include <Python.h>
-#include "sampgdk.h"
-#include <stdexcept>
+#include <string>
 #include <unordered_map>
+#include <Python.h>
 
 #ifdef DEBUG
-#define PY_DEBUG
-#endif // DEBUG
-
+	#define PY_DEBUG
+#endif
 
 #ifdef WIN32
-#include <algorithm>
-#include <string>
-#include <direct.h>
-#define GetCurrentDir _getcwd
+	#include <direct.h>
+	#define GETCWD _getcwd
 #else
-#include <dlfcn.h>
-#include <unistd.h>
-#define GetCurrentDir getcwd
+	#include <unistd.h>
+	#define GETCWD getcwd
 #endif
+
+#include "config.h"
+#include "sampgdk.h"
+#include "samp.h"
+#include "callbacks.h"
+
 
 class PyGamemode
 {
 private:	
-	PyObject *pName = nullptr, *pModule = nullptr;
+	std::string _getcwd();
+	PyObject *module = nullptr;
 	bool initialized = false;
 	bool loaded = false;
 	bool disabled = false;
-	const char* path;
 	std::unordered_map<std::string, PyObject*> config;
+	CallbacksManager *callbacks;
+	PyThreadState *_save;
+
 public:
-	PyGamemode(const char* apath);
+	PyGamemode(CallbacksManager* callbacks);
 	~PyGamemode();
-	int callback(const char* name , PyObject* pArgs, bool obtainLock);
 	void load();
 	void reload();
 	void unload();
 	bool isLoaded();
 	void disable();
 	bool isEnabled();
+	int callback(const std::string name , PyObject* pArgs, cell* retval, bool* stop);
 	PyObject* pyConfig(PyObject *self, PyObject *args, PyObject *kwargs);
 	std::unordered_map<std::string, PyObject*> getConfig() { return this->config; };
+	static const std::unordered_map<std::string, int> constants;
 };
 
 #endif
