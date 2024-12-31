@@ -1,26 +1,26 @@
-from pysamp import (
-    create_object,
-    get_object_model,
-    get_object_pos,
-    set_object_pos,
-    set_object_rot,
-    get_object_rot,
-    set_object_no_camera_col,
-    is_valid_object,
-    destroy_object,
-    move_object,
-    stop_object,
-    is_object_moving,
-    set_object_material,
-    set_object_material_text,
-    set_objects_default_camera_col
-)
-from pysamp.event import event
-from samp import (
-    OBJECT_MATERIAL_SIZE_256x128
-)
+"""Object module, to handle and create objects."""
 
 from typing import Tuple
+
+from pysamp import (
+    create_object,
+    destroy_object,
+    get_object_model,
+    get_object_pos,
+    get_object_rot,
+    is_object_moving,
+    is_valid_object,
+    move_object,
+    set_object_material,
+    set_object_material_text,
+    set_object_no_camera_col,
+    set_object_pos,
+    set_object_rot,
+    set_objects_default_camera_col,
+    stop_object,
+)
+from pysamp.event import event
+from samp import OBJECT_MATERIAL_SIZE_256x128
 
 
 class Object:
@@ -58,15 +58,24 @@ class Object:
         rotation_x: float,
         rotation_y: float,
         rotation_z: float,
-        draw_distance: float = 0.0
+        draw_distance: float = 0.0,
     ) -> "Object":
         """Create a new object.
 
         :return: An instance of an :class:`Object`.
         """
-        return cls(create_object(
-            model, x, y, z, rotation_x, rotation_y, rotation_z, draw_distance
-        ))
+        return cls(
+            create_object(
+                model,
+                x,
+                y,
+                z,
+                rotation_x,
+                rotation_y,
+                rotation_z,
+                draw_distance,
+            )
+        )
 
     def set_position(self, x: float, y: float, z: float) -> bool:
         """Set a new position for the object using world coordinates.
@@ -80,10 +89,7 @@ class Object:
         return get_object_pos(self.id)
 
     def set_rotation(
-        self,
-        rotation_x: float,
-        rotation_y: float,
-        rotation_z: float
+        self, rotation_x: float, rotation_y: float, rotation_z: float
     ) -> bool:
         """Set the new rotation the object should have."""
         return set_object_rot(self.id, rotation_x, rotation_y, rotation_z)
@@ -153,7 +159,7 @@ class Object:
         model_id: int,
         txd_name: str,
         texture_name: str,
-        material_color: int = 0
+        material_color: int = 0,
     ) -> bool:
         """Change the object materials.
 
@@ -183,7 +189,7 @@ class Object:
         bold: bool = True,
         font_color: int = 0xFFFFFFFF,
         back_color: int = 0x00000000,
-        text_alignment: int = 0
+        text_alignment: int = 0,
     ) -> bool:
         """Change the material text of the object.
 
@@ -221,7 +227,7 @@ class Object:
             bold,
             font_color,
             back_color,
-            text_alignment
+            text_alignment,
         )
 
     @staticmethod
@@ -240,4 +246,5 @@ class Object:
 
     @event("OnObjectMoved")
     def on_moved(cls, objectid: int):
+        """Event that is called whenever an object is moved."""
         return (cls(objectid),)

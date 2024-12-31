@@ -1,8 +1,6 @@
+"""Player Object module, to handle and create player objects."""
+
 from typing import Tuple
-
-from pysamp.event import event
-
-from samp import OBJECT_MATERIAL_SIZE_256x128
 
 from pysamp import (
     attach_player_object_to_vehicle,
@@ -22,6 +20,8 @@ from pysamp import (
     set_player_object_rot,
     stop_player_object,
 )
+from pysamp.event import event
+from samp import OBJECT_MATERIAL_SIZE_256x128
 
 
 class PlayerObject:
@@ -45,7 +45,7 @@ class PlayerObject:
         objects.
     """
 
-    def __init__(self, id: int, player_id: int):
+    def __init__(self, id: int, player_id: int):  # noqa: D107
         self.id = id
         self._player_id = player_id
 
@@ -218,7 +218,7 @@ class PlayerObject:
         )
 
     def set_position(self, x: float, y: float, z: float) -> bool:
-        """Set the world coordinates of the player object
+        """Set the world coordinates of the player object.
 
         :param float x: The world x coordinate to set.
         :param float y: The world y coordinate to set.
@@ -391,7 +391,13 @@ class PlayerObject:
 
     @event("OnPlayerObjectMoved")
     def on_moved(cls, playerid: int, objectid: int):
+        """Event that is called when a player moves an object.
+
+        :param Player player: The player that moved the object.
+        :param Object object: The object that was moved.
+        """
         return (cls(objectid, playerid), Player(playerid))
+
 
 from pysamp.player import Player  # noqa
 from pysamp.vehicle import Vehicle  # noqa

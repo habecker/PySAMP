@@ -1,15 +1,18 @@
+"""Create and manage menus using this class."""
+
 from typing import Optional
+
 from pysamp import (
+    add_menu_item,
     create_menu,
     destroy_menu,
-    add_menu_item,
-    set_menu_column_header,
-    show_menu_for_player,
-    hide_menu_for_player,
-    is_valid_menu,
     disable_menu,
     disable_menu_row,
-    get_player_menu
+    get_player_menu,
+    hide_menu_for_player,
+    is_valid_menu,
+    set_menu_column_header,
+    show_menu_for_player,
 )
 from samp import INVALID_MENU
 
@@ -20,10 +23,8 @@ class Menu:
     Create a new menu with :meth:`create`. Then add items to it with
     :meth:`add_item`, and finally show it to players using :meth:`show`.
     """
-    def __init__(
-        self,
-        id: int
-    ) -> None:
+
+    def __init__(self, id: int) -> None:
         self.id = id
 
     @classmethod
@@ -34,7 +35,7 @@ class Menu:
         x: float,
         y: float,
         column_1_width: float,
-        column_2_width: float = 0.0
+        column_2_width: float = 0.0,
     ) -> "Menu":
         """Create a new menu.
 
@@ -54,9 +55,7 @@ class Menu:
             128 menus in total.
         """
         return cls(
-            create_menu(
-                title, columns, x, y, column_1_width, column_2_width
-            )
+            create_menu(title, columns, x, y, column_1_width, column_2_width)
         )
 
     def add_item(self, column: int, text: str) -> None:
@@ -151,5 +150,6 @@ class Menu:
         if self.is_valid():
             show_menu_for_player(self.id, player.id)
         return
+
 
 from pysamp.player import Player  # noqa

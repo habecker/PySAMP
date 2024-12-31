@@ -1,7 +1,9 @@
-from pysamp import (
-    create_pickup, destroy_pickup,
-    # add_static_pickup
-)
+"""A pickup is a global item that can be picked up by a player.
+
+Pickups triggers :meth:`~pysamp.Player.on_pick_up_pickup` when picked up.
+"""
+
+from pysamp import create_pickup, destroy_pickup  # add_static_pickup
 
 
 class Pickup:
@@ -14,7 +16,7 @@ class Pickup:
     created and have pre-made actions that make them work (such as health).
     """
 
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: int) -> None:  # noqa: D107
         self.id = id
         """The pickup ID (readonly int)."""
 
@@ -51,8 +53,7 @@ class Pickup:
             for example using an M4 model in the pickup will automatically\
             give the player the weapon and some ammo.
         """
-        return cls(
-            create_pickup(model, type, x, y, z, virtual_world))
+        return cls(create_pickup(model, type, x, y, z, virtual_world))
 
     def destroy(self) -> bool:
         """Destroy the pickup.

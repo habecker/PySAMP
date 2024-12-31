@@ -1,4 +1,10 @@
+"""Textdraws that are global. For that are separate for
+individual players, check out :class:`PlayerTextDraw`.
+"""
+
 from pysamp import (
+    cancel_select_text_draw,
+    select_text_draw,
     text_draw_alignment,
     text_draw_background_color,
     text_draw_box_color,
@@ -8,7 +14,6 @@ from pysamp import (
     text_draw_font,
     text_draw_hide_for_all,
     text_draw_hide_for_player,
-    text_draw_show_for_player,
     text_draw_letter_size,
     text_draw_set_outline,
     text_draw_set_preview_model,
@@ -19,10 +24,9 @@ from pysamp import (
     text_draw_set_shadow,
     text_draw_set_string,
     text_draw_show_for_all,
+    text_draw_show_for_player,
     text_draw_text_size,
     text_draw_use_box,
-    select_text_draw,
-    cancel_select_text_draw
 )
 
 
@@ -36,6 +40,7 @@ class TextDraw:
 
     To create a new textdraw, use :meth:`TextDraw.create`.
     """
+
     def __init__(self, id: int) -> None:
         self.id = id
 
@@ -75,9 +80,7 @@ class TextDraw:
             - If part of the text is off-screen, the color of the text will\
                 not show, only the shadow (if enabled) will.
         """
-        return cls(
-            text_draw_create(x, y, text)
-        )
+        return cls(text_draw_create(x, y, text))
 
     def destroy(self) -> bool:
         """Destroy the textdraw.
@@ -87,7 +90,7 @@ class TextDraw:
         return text_draw_destroy(self.id)
 
     def letter_size(self, x: float, y: float) -> bool:
-        """Sets the width and height of the letters.
+        """Set the width and height of the letters.
 
         :param float x: Width of a character.
         :param float y: Height of a character.
@@ -149,7 +152,7 @@ class TextDraw:
         return text_draw_alignment(self.id, alignment)
 
     def color(self, color: int) -> bool:
-        """Sets the text color of the textdraw.
+        """Set the text color of the textdraw.
 
         :param int color: The color you want to give the textdraw, in a
             ``0xRRGGBBAA`` format.
@@ -172,7 +175,7 @@ class TextDraw:
         return text_draw_use_box(self.id, use)
 
     def box_color(self, color: int) -> bool:
-        """Sets the text color of a textdraw box.
+        """Set the text color of a textdraw box.
 
         :param int color: Color in ``0xRRGGBBAA`` format.
         :return: This method does not return anything.
@@ -180,7 +183,7 @@ class TextDraw:
         return text_draw_box_color(self.id, color)
 
     def set_shadow(self, size: int) -> bool:
-        """Adds a shadow to the bottom-right side of the text in a
+        """Add a shadow to the bottom-right side of the text in a
         textdraw. The shadow font matches the text font.
 
         :param int size: The size of the shadow. 0 will hide the shadow.
@@ -278,7 +281,7 @@ class TextDraw:
         return text_draw_set_string(self.id, string)
 
     def set_preview_model(self, model_index: int) -> bool:
-        """Sets the textdraw 2D preview sprite of a specified model ID.
+        """Set the textdraw 2D preview sprite of a specified model ID.
 
         :param int model_index: The model to show.
         :return: This method does not return anything.
@@ -290,9 +293,9 @@ class TextDraw:
         rotation_x: float,
         rotation_y: float,
         rotation_z: float,
-        zoom: float = 1.0
+        zoom: float = 1.0,
     ) -> bool:
-        """Sets the rotation and zoom of a 3D model preview textdraw.
+        """Set the rotation and zoom of a 3D model preview textdraw.
 
         :param float rotation_x: The X rotation value.
         :param float rotation_y: The Y rotation value.
@@ -320,7 +323,7 @@ class TextDraw:
         return text_draw_set_preview_veh_col(self.id, color1, color2)
 
     def hide_for_player(self, player: "Player") -> bool:
-        """This method hides a global textdraw for the player.
+        """Hide a global textdraw for the player.
 
         :param Player player: The player to hide the textdraw for.
         :return: This method does not return anything.
@@ -328,7 +331,7 @@ class TextDraw:
         return text_draw_hide_for_player(player.id, self.id)
 
     def show_for_player(self, player: "Player") -> bool:
-        """This method shows a global textdraw for the selected player.
+        """Show a global textdraw for the selected player.
 
         :param Player player: The player to show the textdraw for.
         :return: This method does not return anything.

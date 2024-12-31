@@ -1,22 +1,10 @@
+"""A module that wraps player related functions.
+
+This module contains all player related functions.
+"""
+
 import functools
 from typing import Optional, Tuple
-
-from samp import (
-    BULLET_HIT_TYPE_NONE,
-    BULLET_HIT_TYPE_OBJECT,
-    BULLET_HIT_TYPE_PLAYER,
-    BULLET_HIT_TYPE_PLAYER_OBJECT,
-    BULLET_HIT_TYPE_VEHICLE,
-    CAMERA_CUT,
-    INVALID_ACTOR_ID,
-    INVALID_OBJECT_ID,
-    INVALID_PLAYER_ID,
-    INVALID_VEHICLE_ID,
-    MAPICON_LOCAL,
-    SELECT_OBJECT_GLOBAL_OBJECT,
-    SELECT_OBJECT_PLAYER_OBJECT,
-    SPECTATE_MODE_NORMAL,
-)
 
 from pysamp import (
     allow_player_teleport,
@@ -163,6 +151,22 @@ from pysamp import (
     toggle_player_controllable,
     toggle_player_spectating,
 )
+from samp import (
+    BULLET_HIT_TYPE_NONE,
+    BULLET_HIT_TYPE_OBJECT,
+    BULLET_HIT_TYPE_PLAYER,
+    BULLET_HIT_TYPE_PLAYER_OBJECT,
+    BULLET_HIT_TYPE_VEHICLE,
+    CAMERA_CUT,
+    INVALID_ACTOR_ID,
+    INVALID_OBJECT_ID,
+    INVALID_PLAYER_ID,
+    INVALID_VEHICLE_ID,
+    MAPICON_LOCAL,
+    SELECT_OBJECT_GLOBAL_OBJECT,
+    SELECT_OBJECT_PLAYER_OBJECT,
+    SPECTATE_MODE_NORMAL,
+)
 
 from .commands import _NO_FUNCTION, cmd
 from .event import event
@@ -232,21 +236,28 @@ class Player:
         return spawn_player(self.id)
 
     def set_pos_find_z(self, x: float, y: float, z: float) -> bool:
-        """This sets the players position then adjusts the players
+        """Set the player's position then adjust the player's
         z-coordinate to the nearest solid ground under the position.
 
-        This function does not work if the new coordinates are far away
-        from where the player currently is. The Z height will then be 0,
-        which will likely put them underground.
+        This method is useful for setting a player's position but also
+        making sure they do not spawn in an inappropriate location,
+        such as in water or underground. However, this method does not
+        work if the new coordinates are far away from where the player
+        currently is. In such a case the z-coordinate will be set to 0,
+        which will likely put them underground or into a body of water.
+
+        In order to get the most out of setting a player's position and
+        avoid this problem, look into using an external plugin such as
+        MapAndreas or ColAndreas.
         """
         return set_player_pos_find_z(self.id, x, y, z)
 
     def get_pos(self) -> Tuple[float, float, float]:
-        """Get the position of the player."""
+        """Get the position of the player as a tuple (x, y, z)."""
         return get_player_pos(self.id)
 
     def set_pos(self, x: float, y: float, z: float) -> bool:
-        """Set the player's position"""
+        """Set the player's position to a given coordinate."""
         return set_player_pos(self.id, x, y, z)
 
     def get_facing_angle(self) -> float:
@@ -266,7 +277,7 @@ class Player:
     def is_in_range_of_point(
         self, range: float, x: float, y: float, z: float
     ) -> bool:
-        """Checks if the player is in range of a point.
+        """Check if the player is in range of a point.
 
         :param range: The radius of the circle around the point.
         :param x,y,z: The coordinate of the point.
@@ -279,7 +290,7 @@ class Player:
         return get_player_distance_from_point(self.id, x, y, z)
 
     def is_streamed_in(self, player: "Player") -> bool:
-        """Checks if the player is streamed in on another player's client."""
+        """Check if the player is streamed in on another player's client."""
         return is_player_streamed_in(self.id, player.id)
 
     def get_interior(self) -> int:
@@ -293,8 +304,9 @@ class Player:
         return get_player_interior(self.id)
 
     def set_interior(self, interior_id: int) -> bool:
-        """Set the interior the player to be in. Syncs for all players even
-        when the player is desynced
+        """Set the interior the player to be in.
+
+        Syncs for all players even if the player is desynced.
         """
         return set_player_interior(self.id, interior_id)
 
@@ -303,6 +315,11 @@ class Player:
         return get_player_health(self.id)
 
     def set_health(self, health: float) -> bool:
+        """Set the player's health.
+
+        :param health: A float between `0.0` and `100.0`.
+        :return: This method does not return anything.
+        """
         return set_player_health(self.id, health)
 
     def get_armour(self) -> float:
@@ -313,6 +330,11 @@ class Player:
         return get_player_armour(self.id)
 
     def set_armour(self, armour: float) -> bool:
+        """Set the player's armour.
+
+        :param armour: A float between `0.0` and `100.0`.
+        :return: This method does not return anything.
+        """
         return set_player_armour(self.id, armour)
 
     def get_ammo(self) -> int:
@@ -351,21 +373,37 @@ class Player:
             - he player is reloading their weapon
 
         Example:
+        -------
 
         .. code-block:: python
 
             if player.weapon_state = WEAPONSTATE_LAST_BULLET:
                 player.send_client_message(-1, "You only have 1 bullet left!")
+
         """
         return get_player_weapon_state(self.id)
 
-    def get_target_player(self) -> int:
-        """Check who the player is aiming at. Returns the player"""
-        return get_player_target_player(self.id)
+    def get_target_player(self) -> "Player" | None:
+        """Check who the player is aiming at.
 
-    def get_target_actor(self) -> int:
-        """Get which actor that the player is currently aiming at."""
-        return get_player_target_actor(self.id)
+        :return: The player instance the player is aiming at. If the player
+            is not aiming at anyone, will return None.
+        """
+        target_player_id = get_player_target_player(self.id)
+        if target_player_id == INVALID_PLAYER_ID:
+            return None
+        return Player(target_player_id)
+
+    def get_target_actor(self) -> "Player" | None:
+        """Get which actor that the player is currently aiming at.
+
+        :return: The player instance the player is aiming at. If the player
+            is not aiming at anyone, will return None.
+        """
+        target_actor_id = get_player_target_actor(self.id)
+        if target_actor_id == INVALID_PLAYER_ID:
+            return None
+        return Player(target_actor_id)
 
     def get_team(self) -> int:
         """Get the player's team ID.
@@ -480,6 +518,7 @@ class Player:
             around them. Breaks the sitting animation on bikes.
 
         Example:
+        -------
 
         .. code-block:: python
 
@@ -513,7 +552,7 @@ class Player:
         return reset_player_weapons(self.id)
 
     def set_armed_weapon(self, weapon_id: int) -> bool:
-        """Sets which weapon the player is holding.
+        """Set which weapon the player should be armed with.
 
         The player needs to have this weapon for it to work.
         Calling this method will not give the player a new weapon.
@@ -527,6 +566,7 @@ class Player:
         The tuple returned contains `weapon, ammo`.
 
         Example:
+        -------
 
         .. code-block:: python
 
@@ -559,7 +599,7 @@ class Player:
         return get_player_name(self.id)
 
     def set_name(self, name: str) -> int:
-        """Set a new name for the player.
+        r"""Set a new name for the player.
 
         :param name: The name to set. Must be 2-24 characters long and only
             contain valid characters (0-9, a-z, A-Z, [], (), \\$ @ . _ and =).
@@ -763,10 +803,10 @@ class Player:
         return set_player_weather(self.id, weather)
 
     def force_class_selection(self) -> bool:
-        """Forces a player to go back to class selection on next spawn.
+        """Force a player to go back to class selection on next spawn.
 
         .. note:: You can quickly get the player into class selection by
-            toggling spectating on and then off. Will not perform a state
+            toggling spectating on and then off. It will not trigger a state
             change to ``PLAYER_STATE_WASTED`` if the spectate toggle method
             is used.
         """
@@ -821,6 +861,7 @@ class Player:
             direction.
 
         Example:
+        -------
 
         .. code-block:: python
 
@@ -828,6 +869,7 @@ class Player:
             print(f"Current velocity: {x}, {y}, {z}")
             # prints: 'Current velocity: 0.0, 0.0, 0.0'
             # given that the player is not moving.
+
         """
         return get_player_velocity(self.id)
 
@@ -931,11 +973,11 @@ class Player:
         )
 
     def stop_audio_stream(self) -> bool:
-        """Stops the player's audio stream."""
+        """Stop the player's audio stream, if any."""
         return stop_audio_stream_for_player(self.id)
 
     def set_shop_name(self, shop_name: str) -> bool:
-        """Loads or unloads an interior script for a player.
+        """Load or unload an interior script for a player.
 
         This can for example be the ammunation menu, that belongs to the
         ammunition interior.
@@ -993,7 +1035,7 @@ class Player:
             surfed.
         """
         veh_id = get_player_surfing_vehicle_id(self.id)
-        if (veh_id == INVALID_VEHICLE_ID):
+        if veh_id == INVALID_VEHICLE_ID:
             return None
         return Vehicle(veh_id)
 
@@ -1004,14 +1046,14 @@ class Player:
             standing on, or ``None`` if there's no moving object found.
         """
         obj_id = get_player_surfing_object_id(self.id)
-        if (obj_id == INVALID_OBJECT_ID):
+        if obj_id == INVALID_OBJECT_ID:
             return None
         return Object(obj_id)
 
     def remove_building(
         self, model_id: int, x: float, y: float, z: float, radius: float
     ) -> bool:
-        """Removes a standard San Andreas model for a single player within a
+        """Remove a standard San Andreas model for a single player within a
         specified range.
 
         .. list-table:: Parameters
@@ -1190,6 +1232,7 @@ class Player:
               - Jaw
 
         Example:
+        -------
 
         .. code-block:: python
 
@@ -1209,6 +1252,7 @@ class Player:
                 1.0,
                 0xFF00FF00
             )
+
         """
         return set_player_attached_object(
             self.id,
@@ -1284,7 +1328,7 @@ class Player:
         return edit_attached_object(self.id, index)
 
     def cancel_edit(self):
-        """Cancel object edition mode for a player"""
+        """Cancel object edition mode for a player."""
         return cancel_edit(self.id)
 
     def get_pvar_int(self, var_name: str) -> int:
@@ -1360,7 +1404,7 @@ class Player:
         return set_pvar_float(self.id, var_name, value)
 
     def delete_pvar(self, var_name: str) -> bool:
-        """Deletes a player variable.
+        """Delete a player variable.
 
         :param var_name: The variable name to delete.
         :returns: This method does not return anything.
@@ -1390,7 +1434,7 @@ class Player:
             print(f"You have {pvar_count} player-variables set. \\
                 Upper index (highest ID):\\
                 {pvar_upper_index - 1}.")
-        """
+        """  # noqa
         return get_pvars_upper_index(self.id)
 
     def get_pvar_name_at_index(self, index: int) -> str:
@@ -1402,7 +1446,7 @@ class Player:
         return get_pvar_name_at_index(self.id, index)
 
     def get_pvar_type(self, var_name: str) -> int:
-        """Gets the type (integer, float or string) of a player variable.
+        """Get the type (integer, float or string) of a player variable.
 
         :param var_name: The name of the variable you want to get the type of.
         :returns: An ID that represent either of the types. See table below.
@@ -1472,7 +1516,7 @@ class Player:
         return put_player_in_vehicle(self.id, vehicle_id, seat_id)
 
     def get_vehicle_id(self) -> int:
-        """This method gets the ID of the vehicle the player is currently in.
+        """Get the ID of the vehicle the player is currently in.
 
         :returns: Vehicle ID of the vehicle.
 
@@ -1703,7 +1747,7 @@ class Player:
         )
 
     def disable_race_checkpoint(self) -> bool:
-        """Removes the active race checkpoint for the player.
+        """Remove the active race checkpoint for the player.
 
         :returns: This method does not return anything.
         """
@@ -1759,8 +1803,8 @@ class Player:
         return set_player_marker_for_player(self.id, showplayer.id, color)
 
     def show_name_tag(self, showplayer: "Player", show: bool) -> bool:
-        """This method allows you to toggle the drawing of player nametags,
-        healthbars and armor bars which display above their head.
+        """Show or toggle the player nametags,
+        healthbars and armor bars above their head.
 
         :param showplayer: Player whose name tag will be shown or hidden.
         :param show: ``False`` to hide, ``True`` to show.
@@ -1811,7 +1855,7 @@ class Player:
         )
 
     def remove_map_icon(self, icon_id: int) -> bool:
-        """This removes a map icon that was set with ``player.set_map_icon``.
+        """Remove a map icon that was set with ``player.set_map_icon``.
 
         :param icon_id: The icon slot to remove the icon from (0-99).
         :return: No return value.
@@ -1875,7 +1919,7 @@ class Player:
         return set_player_camera_pos(self.id, x, y, z)
 
     def get_camera_front_vector(self) -> Tuple[float, float, float]:
-        """This function will return the current direction of player's aiming
+        """Get the current direction of player's aiming
         in 3-D space, the coords are relative to the camera position,
         see :meth:`Player.get_camera_pos`.
 
@@ -1885,7 +1929,7 @@ class Player:
         return get_player_camera_front_vector(self.id)
 
     def get_camera_mode(self) -> int:
-        """Returns the current GTA camera mode for the requested player.
+        """Get the GTA camera mode for the requested player.
 
         :return: A number that represents the camera mode the player currently
             is in.
@@ -1982,8 +2026,7 @@ class Player:
         return enable_player_camera_target(self.id, enable)
 
     def get_camera_target_object(self) -> Optional["Object"]:
-        """Allows you to retrieve the map object the player is looking
-        at.
+        """Retrieve the map object the player is looking at.
 
         :return: The :class:`~object.Object` the player is looking at.
             If ``None`` is returned, player isn't
@@ -1999,8 +2042,7 @@ class Player:
         return Object(object_id)
 
     def get_camera_target_vehicle(self) -> Optional["Vehicle"]:
-        """Allows you to retrieve the ID of the vehicle the player is looking
-        at.
+        """Retrieve the ID of the vehicle the player is looking at.
 
         :return: The :class:`~vehicle.Vehicle` the player is looking at.
             If ``None`` is returned, player isn't
@@ -2059,7 +2101,7 @@ class Player:
         return get_player_camera_aspect_ratio(self.id)
 
     def get_camera_zoom(self) -> float:
-        """Retrieves the game camera zoom level for a given player.
+        """Get the game camera zoom level for a given player.
 
         :return: The zoom level as a float. Useful to check zoom level when
             using a sniper, etc.
@@ -2080,7 +2122,6 @@ class Player:
         time: int,
         cut: int = CAMERA_CUT,
     ) -> bool:
-
         """Smoothly move the camera position from one coordinate to another,
         using a given time on the transition.
 
@@ -2285,12 +2326,11 @@ class Player:
         return player_spectate_vehicle(self.id, target_vehicle.id, mode)
 
     def start_recording_data(self, recordtype: int, recordname: str) -> bool:
-        """Used to record NPC data."""
+        """Start recording NPC data."""
         return start_recording_player_data(self.id, recordtype, recordname)
 
     def stop_recording_data(self) -> bool:
-        """Stop recording NPC data, started with :meth:`start_recording_data`.
-        """
+        """Stop recording NPC data, started with :meth:`start_recording_data`."""
         return stop_recording_player_data(self.id)
 
     def create_explosion(
@@ -2395,7 +2435,7 @@ class Player:
         return ban(self.id)
 
     def ban_ex(self, reason: str) -> bool:
-        """This method does the exact same as :meth:`ban`, but adds a reason.
+        """Ban the player from the server with a given reason.
 
         :param str reason: The reason to write together with the ban.
         :return: No value is returned.
@@ -2435,22 +2475,51 @@ class Player:
     def on_enter_exit_mod_shop(
         cls, playerid: int, enterexit: int, interiorid: int
     ):
+        """Event that is called when a player enters or exits a mod shop.
+
+        :param Player player: The player that entered or exited.
+        :param int enterexit: 1 if entering, 0 if exiting.
+        :param int interiorid: The ID of the interior.
+        """
         return (cls(playerid), enterexit, interiorid)
 
     @event("OnPlayerConnect")
     def on_connect(cls, playerid: int):
+        """Event that is called when a player connects to the server.
+
+        :param Player player: The player that connected.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerDisconnect")
     def on_disconnect(cls, playerid: int, reason: int):
+        """Event that is called when a player disconnects from the server.
+
+        :param Player player: The player that disconnected.
+        :param int reason: The reason of the disconnect.
+            Reason is a number from 0 to 2.
+        """
         return (cls(playerid), reason)
 
     @event("OnPlayerSpawn")
     def on_spawn(cls, playerid: int):
+        """Event that is called when a player spawns.
+
+        :param Player player: The player that spawned.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerDeath")
     def on_death(cls, playerid: int, killerid: int, reason: int):
+        """Event that is called when a player dies.
+
+        :param Player player: The player that died.
+        :param Player killer: The killer is the player who killed the player.
+            If the killer is not a player, it is set to INVALID_PLAYER_ID.
+        :param int reason: The reason is the weapon that caused the player to
+            die. See: https://www.open.mp/docs/scripting/resources/weaponids
+            for the available weapons.
+        """
         return (
             cls(playerid),
             killerid if killerid == INVALID_PLAYER_ID else cls(killerid),
@@ -2459,14 +2528,34 @@ class Player:
 
     @event("OnPlayerText")
     def on_text(cls, playerid: int, text: str):
+        """Event that is called when a player sends a message in the chat.
+
+        :param Player player: The player that sent the message.
+        :param str text: The text that was sent in chat.
+        """
         return (cls(playerid), text)
 
     @event("OnPlayerCommandText")
     def on_command_text(cls, playerid: int, command_text: str):
+        """Event that is called when a player sends a command text.
+
+        For creating and using commands, it is recommended to take a look
+        at the `pysamp.commands` module, instead of using this event.
+
+        :param Player player: The player that sent the command.
+        :param str command_text: The text that was sent in chat, including the
+            forward slash.
+
+        """
         return (cls(playerid), command_text)
 
     @event("OnPlayerRequestClass")
     def on_request_class(cls, playerid: int, classid: int):
+        """Event that is called when a player requests a class.
+
+        :param Player player: The player.
+        :param int classid: The ID of the class.
+        """
         return (cls(playerid), classid)
 
     @event("OnPlayerEnterVehicle")
@@ -2476,46 +2565,104 @@ class Player:
         vehicleid: int,
         is_passenger: bool,
     ):
+        """Event that is called when a player enters a vehicle by pressing
+        ENTER / F.
+
+        :param Player player: The player that entered.
+        :param Vehicle vehicle: The vehicle that the player entered.
+        :param bool is_passenger: Whether the player is a passenger or not.
+
+        """
         return (cls(playerid), Vehicle(vehicleid), is_passenger)
 
     @event("OnPlayerExitVehicle")
     def on_exit_vehicle(cls, playerid: int, vehicleid: int):
+        """Event that is called when a player exits a vehicle by pressing
+        ENTER / F.
+
+        :param Player player: The player that exited.
+        :param Vehicle vehicle: The vehicle that the player exited.
+        """
         return (cls(playerid), Vehicle(vehicleid))
 
     @event("OnPlayerStateChange")
     def on_state_change(cls, playerid, newstate: int, oldstate: int):
+        """Event that is called when a player changes state. For example
+        changing from spectator to onfoot, or dies.
+
+        :param Player player: The player that changed state.
+        :param int newstate: The new state of the player.
+        :param int oldstate: The old state of the player.
+
+        States can be found here:
+        https://www.open.mp/docs/scripting/resources/playerstates
+        """
         return (cls(playerid), newstate, oldstate)
 
     @event("OnPlayerEnterCheckpoint")
     def on_enter_checkpoint(cls, playerid: int):
+        """Event that is called when a player enters a checkpoint.
+
+        :param Player player: The player that entered the checkpoint.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerLeaveCheckpoint")
     def on_leave_checkpoint(cls, playerid: int):
+        """Event that is called when a player leaves a checkpoint.
+
+        :param Player player: The player that left the checkpoint.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerEnterRaceCheckpoint")
     def on_enter_race_checkpoint(cls, playerid: int):
+        """Event that is called when a player enters a race checkpoint.
+
+        :param Player player: The player that entered the checkpoint.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerLeaveRaceCheckpoint")
     def on_leave_race_checkpoint(cls, playerid: int):
+        """Event that is called when a player leaves a race checkpoint.
+
+        :param Player player: The player that left the checkpoint.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerRequestSpawn")
     def on_request_spawn(cls, playerid: int):
+        """Event that is called when a player requests to spawn.
+
+        :param Player player: The player that requested to spawn.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerPickUpPickup")
     def on_pick_up_pickup(cls, playerid, pickupid: int):
+        """Event that is called when a player picks up a pickup.
+
+        :param Player player: The player that picked up the pickup.
+        :param Pickup pickup: The pickup that was picked up.
+        """
         return (cls(playerid), Pickup(pickupid))
 
     @event("OnPlayerSelectedMenuRow")
     def on_selected_menu_row(cls, playerid: int, row: int):
+        """Event that is called when a player selects a menu row.
+
+        :param Player player: The player that selected the menu row.
+        :param int row: The row that was selected.
+        """
         return (cls(playerid), row)
 
     @event("OnPlayerExitedMenu")
     def on_exited_menu(cls, playerid: int):
+        """Event that is called when a player exits a menu.
+
+        :param Player player: The player that exited the menu.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerInteriorChange")
@@ -2525,22 +2672,48 @@ class Player:
         newinteriorid: int,
         oldinteriorid: int,
     ):
+        """Event that is called when a player changes interior.
+
+        :param Player player: The player that changed interior.
+        :param int newinteriorid: The ID of the new interior.
+        :param int oldinteriorid: The ID of the old interior.
+        """
         return (cls(playerid), newinteriorid, oldinteriorid)
 
     @event("OnPlayerKeyStateChange")
     def on_key_state_change(cls, playerid: int, newkeys: int, oldkeys: int):
+        """Event that is called when a player changes keys.
+
+        :param Player player: The player that changed keys.
+        :param int newkeys: The new keys of the player.
+        :param int oldkeys: The old keys of the player.
+        """
         return (cls(playerid), newkeys, oldkeys)
 
     @event("OnPlayerUpdate")
     def on_update(cls, playerid: int):
+        """Event that is called when a player updates.
+
+        :param Player player: The player that updated.
+        """
         return (cls(playerid),)
 
     @event("OnPlayerStreamIn")
     def on_stream_in(cls, playerid: int, forplayerid: int):
+        """Event that is called when a player streams in.
+
+        :param Player player: The player that streamed in.
+        :param Player forplayer: The player that streamed in.
+        """
         return (cls(playerid), cls(forplayerid))
 
     @event("OnPlayerStreamOut")
     def on_stream_out(cls, playerid: int, forplayerid: int):
+        """Event that is called when a player streams out.
+
+        :param Player player: The player that streamed out.
+        :param Player forplayer: The player that streamed out.
+        """
         return (cls(playerid), cls(forplayerid))
 
     @event("OnPlayerTakeDamage")
@@ -2552,6 +2725,14 @@ class Player:
         weaponid: int,
         bodypart: int,
     ):
+        """Event that is called when a player takes damage.
+
+        :param Player player: The player that took damage.
+        :param Player issuer: The player that caused the damage.
+        :param float amount: The amount of damage that was taken.
+        :param int weaponid: The ID of the weapon that was used.
+        :param int bodypart: The body part that was damaged.
+        """
         return (
             cls(playerid),
             issuerid if issuerid == INVALID_PLAYER_ID else cls(issuerid),
@@ -2569,6 +2750,14 @@ class Player:
         weaponid: int,
         bodypart: int,
     ):
+        """Event that is called when a player gives damage to another player.
+
+        :param Player player: The player that gave damage.
+        :param Player damaged: The player that was damaged.
+        :param float amount: The amount of damage that was given.
+        :param int weaponid: The ID of the weapon that was used.
+        :param int bodypart: The body part that was damaged.
+        """
         return (
             cls(playerid),
             damagedid if damagedid == INVALID_PLAYER_ID else cls(damagedid),
@@ -2586,6 +2775,14 @@ class Player:
         weaponid: int,
         bodypart: int,
     ):
+        """Event that is called when a player gives damage to an actor.
+
+        :param Player player: The player that gave damage.
+        :param Actor damaged: The actor that was damaged.
+        :param float amount: The amount of damage that was given.
+        :param int weaponid: The ID of the weapon that was used.
+        :param int bodypart: The body part that was damaged.
+        """
         return (
             cls(playerid),
             Actor(damaged_actorid),
@@ -2596,18 +2793,41 @@ class Player:
 
     @event("OnPlayerClickMap")
     def on_click_map(cls, playerid: int, x: float, y: float, z: float):
+        """Event that is called when a player clicks on the map.
+
+        :param Player player: The player that clicked on the map.
+        :param float x: The X coordinate of the click.
+        :param float y: The Y coordinate of the click.
+        :param float z: The Z coordinate of the click.
+        """
         return (cls(playerid), x, y, z)
 
     @event("OnPlayerClickTextDraw")
     def on_click_textdraw(cls, playerid: int, clickedid: int):
+        """Event that is called when a player clicks on a textdraw.
+
+        :param Player player: The player that clicked on the textdraw.
+        :param TextDraw textdraw: The textdraw that was clicked on.
+        """
         return (cls(playerid), TextDraw(clickedid))
 
     @event("OnPlayerClickPlayerTextDraw")
     def on_click_playertextdraw(cls, playerid: int, playertextid: int):
+        """Event that is called when a player clicks on a player textdraw.
+
+        :param Player player: The player that clicked on the textdraw.
+        :param TextDraw textdraw: The textdraw that was clicked on.
+        """
         return (cls(playerid), PlayerTextDraw(playertextid, cls(playerid)))
 
     @event("OnPlayerClickPlayer")
     def on_click_player(cls, playerid: int, clickedplayerid: int, source: int):
+        """Event that is called when a player clicks on another player.
+
+        :param Player player: The player that clicked on the player.
+        :param Player clickedplayer: The player that was clicked on.
+        :param int source: The source of the click.
+        """
         return (cls(playerid), cls(clickedplayerid), source)
 
     @event("OnPlayerEditObject")
@@ -2624,6 +2844,18 @@ class Player:
         rot_y: float,
         rot_z: float,
     ):
+        """Event that is called when a player edits an object.
+
+        :param Player player: The player that edited the object.
+        :param Object object: The object that was edited.
+        :param int response: The response of the edit.
+        :param float x: The X coordinate of the edit.
+        :param float y: The Y coordinate of the edit.
+        :param float z: The Z coordinate of the edit.
+        :param float rot_x: The X rotation of the edit.
+        :param float rot_y: The Y rotation of the edit.
+        :param float rot_z: The Z rotation of the edit.
+        """
         return (
             cls(playerid),
             PlayerObject(objectid) if is_playerobject else Object(objectid),
@@ -2654,6 +2886,23 @@ class Player:
         scale_y: float,
         scale_z: float,
     ):
+        """Event that is called when a player edits an attached object.
+
+        :param Player player: The player that edited the object.
+        :param int response: The response of the edit.
+        :param int index: The index (slot) to assign the object to (0-9).
+        :param int modelid: The model to attach.
+        :param int boneid: The bone to attach the object to. (0-18)
+        :param float offset_x: X axis offset for the object position.
+        :param float offset_y: Y axis offset for the object position.
+        :param float offset_z: Z axis offset for the object position.
+        :param float rot_x: X axis rotation of the object.
+        :param float rot_y: Y axis rotation of the object.
+        :param float rot_z: Z axis rotation of the object.
+        :param float scale_x: X axis scale of the object.
+        :param float scale_y: Y axis scale of the object.
+        :param float scale_z: Z axis scale of the object.
+        """
         return (
             cls(playerid),
             response,
@@ -2682,6 +2931,15 @@ class Player:
         y: float,
         z: float,
     ):
+        """Event that is called when a player selects an object.
+
+        :param Player player: The player that selected the object.
+        :param Object object: The object that was selected.
+        :param int modelid: The model of the object.
+        :param float x: The X coordinate of the object.
+        :param float y: The Y coordinate of the object.
+        :param float z: The Z coordinate of the object.
+        """
         object_cls = {
             SELECT_OBJECT_GLOBAL_OBJECT: Object,
             SELECT_OBJECT_PLAYER_OBJECT: PlayerObject,
@@ -2706,6 +2964,19 @@ class Player:
         y: float,
         z: float,
     ):
+        """Event that is called when a player fires a weapon.
+
+        Depending on the hittype, the hitid will be different.
+        You will need to check the hit_cls for the type of hit.
+
+        :param Player player: The player that fired the weapon.
+        :param int weaponid: The id of the weapon that was fired.
+        :param (Vehicle|Object|PlayerObject|None) hit: The object that was hit.
+        :param int hitid: The id of the hit.
+        :param float x: The X coordinate of the hit.
+        :param float y: The Y coordinate of the hit.
+        :param float z: The Z coordinate of the hit.
+        """
         hit_cls = {
             BULLET_HIT_TYPE_NONE: lambda _: None,
             BULLET_HIT_TYPE_PLAYER: cls,
@@ -2724,6 +2995,12 @@ class Player:
 
     @classmethod
     def command(cls, function=_NO_FUNCTION, **kwargs):
+        """Decorate a command handler to register it with the given options.
+
+        :param function: The command handler to register.
+            Useful when there is no need for other arguments, one can use the
+            bare decorator without calling it.
+        """
         if function is _NO_FUNCTION:
             return functools.partial(cls.command, **kwargs)
 

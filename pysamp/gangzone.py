@@ -1,3 +1,5 @@
+"""Create and manage gangzones on the server."""
+
 from pysamp import (
     gang_zone_create,
     gang_zone_destroy,
@@ -33,7 +35,7 @@ class Gangzone:
     ```
     """
 
-    def __init__(
+    def __init__(  # noqa: D107
         self, id: int, min_x: float, min_y: float, max_x: float, max_y: float
     ) -> None:
         self.id = id
@@ -63,23 +65,39 @@ class Gangzone:
         )
 
     def get_id(self) -> int:
-        """Get the gangzone id."""
+        """Get the gangzone id.
+
+        :return: The gangzone id.
+        """
         return self.id
 
     def destroy(self) -> bool:
-        """Destroy the gangzone."""
+        """Destroy the gangzone.
+
+        :return: ``True`` if the gangzone was destroyed, ``False`` otherwise.
+        """
         return gang_zone_destroy(self.id)
 
     def show_for_player(self, player: "Player", color: int) -> bool:
-        """Show the gangzone for a player."""
+        """Show the gangzone for a player.
+
+        :param player: The player to show the gangzone for.
+        :param color: The color of the gangzone.
+        """
         return gang_zone_show_for_player(player.id, self.id, color)
 
     def hide_for_player(self, player: "Player") -> bool:
-        """Hide the ganzone for a player."""
+        """Hide the ganzone for a player.
+
+        :param player: The player to hide the gangzone for.
+        """
         return gang_zone_hide_for_player(player.id, self.id)
 
     def show_for_all(self, color: int) -> bool:
-        """Show the ganzone for all players, with the desired color."""
+        """Show the ganzone for all players, with the desired color.
+
+        :param color: The color of the gangzone.
+        """
         return gang_zone_show_for_all(self.id, color)
 
     def hide_for_all(self) -> bool:
@@ -89,16 +107,25 @@ class Gangzone:
     def flash_for_player(self, player: "Player", flash_color: int) -> bool:
         """Make the gangzone flash for the given player,
         with the desired color.
+
+        :param player: The player to flash the gangzone for.
+        :param flash_color: The color of the flash.
+        :return: ``True`` if the gangzone was flashed, ``False`` otherwise.
         """
         return gang_zone_flash_for_player(player.id, self.id, flash_color)
 
     def flash_for_all(self, flash_color: int) -> bool:
-        """Make the gangzone flash for all players."""
+        """Make the gangzone flash for all players.
+
+        :param flash_color: The color of the flash.
+        """
         return gang_zone_flash_for_all(self.id, flash_color)
 
     def stop_flash_for_player(self, player: "Player") -> bool:
         """If a gangzone is flashing for a player,
         this can be used to stop it.
+
+        :param player: The player to stop the flashing for.
         """
         return gang_zone_stop_flash_for_player(player.id, self.id)
 

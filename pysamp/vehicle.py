@@ -1,3 +1,7 @@
+"""A module that wraps vehicle related functions."""
+
+from typing import Optional, Tuple
+
 from pysamp import (
     add_vehicle_component,
     change_vehicle_color,
@@ -40,8 +44,6 @@ from pysamp import (
     set_vehicle_z_angle,
     update_vehicle_damage_status,
 )
-
-from typing import Optional, Tuple
 from pysamp.event import event
 from samp import INVALID_PLAYER_ID
 
@@ -76,8 +78,7 @@ class Vehicle:
         respawn_delay: int,
         add_siren: bool = False,
     ) -> "Vehicle":
-        """Create a new vehicle with the given model, position, colors and
-        settings.
+        """Create a new vehicle with the given arguments.
 
         :param model: The model of the car (400-622).
         :param float x: The x coordinate to spawn the vehicle.
@@ -90,6 +91,7 @@ class Vehicle:
             automatically respawn.
         :param optional bool add_siren: Set if the car should have
             a siren. Defaults to False.
+
         :return: An instance of :class:`Vehicle`.
         """
         return cls(
@@ -103,11 +105,11 @@ class Vehicle:
                 color2,
                 respawn_delay,
                 add_siren,
-            )
+            ),
         )
 
     def is_valid(self) -> bool:
-        """Check if the vehicle is valid"""
+        """Check if the vehicle is valid."""
         return is_valid_vehicle(self.id)
 
     def get_distance_from_point(self, x: float, y: float, z: float) -> float:
@@ -115,7 +117,7 @@ class Vehicle:
         return get_vehicle_distance_from_point(self.id, x, y, z)
 
     def destroy(self) -> bool:
-        """Removes the vehicle from the server."""
+        """Remove the vehicle from the server."""
         return destroy_vehicle(self.id)
 
     def is_streamed_in(self, for_player: "Player") -> bool:
@@ -127,27 +129,33 @@ class Vehicle:
         return get_vehicle_pos(self.id)
 
     def set_position(self, x: float, y: float, z: float) -> bool:
-        """Sets the vehicle position directly on the passed position."""
+        """Set the vehicle position directly to the passed position."""
         return set_vehicle_pos(self.id, x, y, z)
 
     def get_z_angle(self) -> float:
-        """Returns the heading the vehicle has. Can be >= 0.0 and < 360."""
+        """Get the heading the vehicle has. Can be >= 0.0 and < 360."""
         return get_vehicle_z_angle(self.id)
 
     def set_z_angle(self, z_angle: float) -> bool:
-        """Set the vehicle's heading hangle. 0.0 => z_angle < 360.0"""
+        """Set the vehicle's heading hangle. 0.0 => z_angle < 360.0."""
         return set_vehicle_z_angle(self.id, z_angle)
 
     def get_rotation_quat(self) -> Tuple[float, float, float, float]:
-        """Returns a vehicle's rotation on all axes as a quaternion"""
+        """Get the vehicle's rotation on all axes as a quaternion."""
         return get_vehicle_rotation_quat(self.id)
 
     def set_params_for_player(
-        self, player: "Player", objective: int, doors_locked: int
+        self,
+        player: "Player",
+        objective: int,
+        doors_locked: int,
     ) -> bool:
         """Set the parameters on the vehicle."""
         return set_vehicle_params_for_player(
-            self.id, player.id, objective, doors_locked
+            self.id,
+            player.id,
+            objective,
+            doors_locked,
         )
 
     def get_params_ex(self) -> Tuple[int, int, int, int, int, int, int]:
@@ -166,7 +174,14 @@ class Vehicle:
     ) -> bool:
         """Set additional parameters on the vehicle."""
         return set_vehicle_params_ex(
-            self.id, engine, lights, alarm, doors, bonnet, boot, objective
+            self.id,
+            engine,
+            lights,
+            alarm,
+            doors,
+            bonnet,
+            boot,
+            objective,
         )
 
     def get_params_siren_state(self) -> int:
@@ -178,7 +193,7 @@ class Vehicle:
         return get_vehicle_params_siren_state(self.id)
 
     def get_params_car_doors(self) -> Tuple[int, int, int, int]:
-        """Allows you to retrieve the current state of a vehicle's doors
+        """Get and retrieve the current state of a vehicle's doors.
 
         Returns -1 if the door state is not set, like on a bike or a 2-door.
         Otherwise, it will return 0 (closed) or 1 (open).
@@ -203,7 +218,11 @@ class Vehicle:
         Setting an unavailable door to 0 or 1, has no effect.
         """
         return set_vehicle_params_car_doors(
-            self.id, driver, passenger, backleft, backright
+            self.id,
+            driver,
+            passenger,
+            backleft,
+            backright,
         )
 
     def get_params_car_windows(self) -> Tuple[int, int, int, int]:
@@ -211,11 +230,19 @@ class Vehicle:
         return get_vehicle_params_car_windows(self.id)
 
     def set_params_car_windows(
-        self, driver: int, passenger: int, backleft: int, backright: int
+        self,
+        driver: int,
+        passenger: int,
+        backleft: int,
+        backright: int,
     ) -> bool:
-        """Allows you to open and close the windows of a vehicle."""
+        """Open and close the windows of a vehicle."""
         return set_vehicle_params_car_windows(
-            self.id, driver, passenger, backleft, backright
+            self.id,
+            driver,
+            passenger,
+            backleft,
+            backright,
         )
 
     def set_to_respawn(self) -> bool:
@@ -231,7 +258,7 @@ class Vehicle:
         return link_vehicle_to_interior(self.id, interior_id)
 
     def add_component(self, component_id: int) -> bool:
-        """Adds a component (often referred to as a modification)
+        """Add a component (often referred to as a modification)
         to a vehicle.
 
         Valid components can be found here:
@@ -317,15 +344,15 @@ class Vehicle:
         return get_vehicle_model(self.id)
 
     def get_component_in_slot(self, slot: int) -> int:
-        """Retrieves the installed component ID in the specific slot."""
+        """Get the installed component ID in the specific slot."""
         return get_vehicle_component_in_slot(self.id, slot)
 
     def repair(self) -> bool:
-        """Fully repairs the vehicle - including health"""
+        """Fully repair the vehicle and restore health to 1000.0."""
         return repair_vehicle(self.id)
 
     def get_velocity(self) -> Tuple[float, float, float]:
-        """Get the vehicle velocity. Vector is relative to the car axis"""
+        """Get the car velocity. Relative to the car axis."""
         return get_vehicle_velocity(self.id)
 
     def set_velocity(self, x: float, y: float, z: float) -> bool:
@@ -340,8 +367,8 @@ class Vehicle:
         return set_vehicle_angular_velocity(self.id, x, y, z)
 
     def get_damage_status(self) -> Tuple[int, int, int, int]:
-        """This method returns information to you about if parts of the
-        car has been damaged, or tires has been deflated.
+        """Get information about if parts of the
+        car has been damaged or if tires has been deflated.
 
         Please refer to:
         https://open.mp/docs/scripting/resources/damagestatus
@@ -365,7 +392,11 @@ class Vehicle:
         https://open.mp/docs/scripting/resources/damagestatus
         """
         return update_vehicle_damage_status(
-            self.id, panels, doors, lights, tires
+            self.id,
+            panels,
+            doors,
+            lights,
+            tires,
         )
 
     def get_virtual_world(self) -> int:
@@ -378,14 +409,17 @@ class Vehicle:
 
     @event("OnTrailerUpdate")
     def on_trailer_update(cls, playerid: int, trailerid: int):
+        """Event that is triggered when a trailer is attached to a vehicle."""
         return (Player(playerid), cls(trailerid))
 
     @event("OnVehicleDamageStatusUpdate")
     def on_damage_status_update(cls, vehicleid: int, playerid: int):
+        """Event that is triggered when vehicle damage status changes."""
         return (cls(vehicleid), Player(playerid))
 
     @event("OnVehicleDeath")
     def on_death(cls, vehicleid: int, killerid: int):
+        """Event that is triggered when a vehicle dies."""
         return (
             cls(vehicleid),
             Player(killerid) if killerid != INVALID_PLAYER_ID else killerid,
@@ -393,35 +427,52 @@ class Vehicle:
 
     @event("OnVehicleMod")
     def on_mod(cls, playerid: int, vehicleid: int, componentid: int):
+        """Event that is triggered when a vehicle component is modified."""
         return (Player(playerid), cls(vehicleid), componentid)
 
     @event("OnVehiclePaintjob")
     def on_paintjob(cls, playerid: int, vehicleid: int, paintjobid: int):
+        """Event that is triggered when a vehicle paintjob is changed."""
         return (Player(playerid), cls(vehicleid), paintjobid)
 
     @event("OnVehicleRespray")
     def on_respray(
-        cls, playerid: int, vehicleid: int, color1: int, color2: int
+        cls,
+        playerid: int,
+        vehicleid: int,
+        color1: int,
+        color2: int,
     ):
+        """Event that is triggered when a vehicle is resprayed in
+        a respray shop, native to GTA San Andreas.
+        """
         return (Player(playerid), cls(vehicleid), color1, color2)
 
     @event("OnVehicleSirenStateChange")
     def on_siren_state_change(
-        cls, playerid: int, vehicleid: int, newstate: int
+        cls,
+        playerid: int,
+        vehicleid: int,
+        newstate: int,
     ):
+        """Event that is triggered when a vehicle's siren state changes,
+        for example when a police vehicle is stopping its siren.
+        """
         return (Player(playerid), cls(vehicleid), newstate)
 
     @event("OnVehicleSpawn")
     def on_spawn(cls, vehicleid: int):
-        """When a vehicle is respawning only."""
+        """Event that is triggered when a vehicle is spawned."""
         return (cls(vehicleid),)
 
     @event("OnVehicleStreamIn")
     def on_stream_in(cls, vehicleid: int, forplayerid: int):
+        """Event that is triggered when a vehicle is streamed in for a player."""
         return (cls(vehicleid), Player(forplayerid))
 
     @event("OnVehicleStreamOut")
     def on_stream_out(cls, vehicleid: int, forplayerid: int):
+        """Event that is triggered when a vehicle is streamed out for a player."""
         return (cls(vehicleid), Player(forplayerid))
 
     @event("OnUnoccupiedVehicleUpdate")
@@ -437,6 +488,11 @@ class Vehicle:
         vel_y: float,
         vel_z: float,
     ):
+        """Event that is called whenever an unoccupied vehicle is updated.
+
+        Please refer to:
+        https://www.open.mp/docs/scripting/callbacks/OnUnoccupiedVehicleUpdate
+        """
         return (
             cls(vehicleid),
             Player(playerid),

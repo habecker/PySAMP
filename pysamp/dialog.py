@@ -1,3 +1,5 @@
+"""Handles player dialogs."""
+
 import string
 from typing import Callable, Dict, Optional
 
@@ -9,7 +11,7 @@ class ColorCompatibleFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
         # Allow color escapes like {FF0000} or {808080}
         if key not in kwargs:
-            return '{%s}' % key
+            return "{%s}" % key
         return kwargs[key]
 
 
@@ -144,9 +146,9 @@ class Dialog:
 
 
 registry.register_callback(
-    'OnDialogResponse',
+    "OnDialogResponse",
     Dialog.handle,
-    'pysamp.dialogs',
+    "pysamp.dialogs",
 )
 
 from pysamp.player import Player  # noqa

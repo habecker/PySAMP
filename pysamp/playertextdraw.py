@@ -1,4 +1,7 @@
-from pysamp.player import Player
+"""Textdraws that are per-player. For global textdraws that are shown for
+all players, check out :class:`TextDraw`.
+"""
+
 from pysamp import (
     create_player_text_draw,
     player_text_draw_alignment,
@@ -19,8 +22,9 @@ from pysamp import (
     player_text_draw_set_string,
     player_text_draw_show,
     player_text_draw_text_size,
-    player_text_draw_use_box
+    player_text_draw_use_box,
 )
+from pysamp.player import Player
 
 
 class PlayerTextDraw:
@@ -296,7 +300,7 @@ class PlayerTextDraw:
         rotation_x: float,
         rotation_y: float,
         rotation_z: float,
-        zoom: float = 1.0
+        zoom: float = 1.0,
     ) -> bool:
         """Sets the rotation and zoom of a 3D model preview player-textdraw.
 

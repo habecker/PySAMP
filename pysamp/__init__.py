@@ -1,10 +1,18 @@
 """Snake case wrappers for PEP8 compatibility."""
-from typing import Tuple, Callable
+
+# Disable warnings for missing docstrings in modukle:
+# pylint: disable=C0114
+
 import functools
+from typing import Callable, Tuple
+
 from pysamp.event import registry
-
-
 from samp import (
+    CAMERA_CUT,
+    INVALID_PLAYER_ID,
+    INVALID_VEHICLE_ID,
+    MAPICON_LOCAL,
+    SPECTATE_MODE_NORMAL,
     AddMenuItem,
     AddPlayerClass,
     AddPlayerClassEx,
@@ -32,7 +40,6 @@ from samp import (
     BlockIpAddress,
     CallNativeFunction,
     CallRemoteFunction,
-    RegisterCallback,
     CancelEdit,
     CancelSelectTextDraw,
     ChangeVehicleColor,
@@ -196,7 +203,6 @@ from samp import (
     GetWeaponName,
     GivePlayerMoney,
     GivePlayerWeapon,
-    gpci as _gpci,
     HideMenuForPlayer,
     InterpolateCameraLookAt,
     InterpolateCameraPos,
@@ -222,6 +228,7 @@ from samp import (
     IsValidVehicle,
     IsVehicleStreamedIn,
     Kick,
+    KillTimer,
     LimitGlobalChatRadius,
     LimitPlayerMarkerRadius,
     LinkVehicleToInterior,
@@ -237,6 +244,7 @@ from samp import (
     NetStats_MessagesRecvPerSecond,
     NetStats_MessagesSent,
     NetStats_PacketLossPercent,
+    OBJECT_MATERIAL_SIZE_256x128,
     PlayAudioStreamForPlayer,
     PlayCrimeReportForPlayer,
     PlayerPlaySound,
@@ -262,6 +270,7 @@ from samp import (
     PlayerTextDrawTextSize,
     PlayerTextDrawUseBox,
     PutPlayerInVehicle,
+    RegisterCallback,
     RemoveBuildingForPlayer,
     RemovePlayerAttachedObject,
     RemovePlayerFromVehicle,
@@ -342,7 +351,6 @@ from samp import (
     SetSVarString,
     SetTeamCount,
     SetTimer,
-    KillTimer,
     SetVehicleAngularVelocity,
     SetVehicleHealth,
     SetVehicleNumberPlate,
@@ -399,13 +407,8 @@ from samp import (
     UpdateVehicleDamageStatus,
     UsePlayerPedAnims,
     VectorSize,
-    CAMERA_CUT,
-    MAPICON_LOCAL,
-    SPECTATE_MODE_NORMAL,
-    OBJECT_MATERIAL_SIZE_256x128,
-    INVALID_PLAYER_ID,
-    INVALID_VEHICLE_ID
 )
+from samp import gpci as _gpci
 
 from .callbacks import _path_hook  # noqa
 
@@ -715,8 +718,7 @@ def remove_building_for_player(
 def get_player_last_shot_vectors(
     player_id: int,
 ) -> Tuple[float, float, float, float, float, float]:
-    """
-    This function returns two coordinates in a tuple.
+    """This function returns two coordinates in a tuple.
     The first three values are the coordinate where the shot was shot from.
     The last three values are where the bullet hit (if it hit something).
 
@@ -2364,7 +2366,7 @@ def get_vehicle_z_angle(vehicle_id: int) -> float:
 
 
 def get_vehicle_rotation_quat(
-    vehicle_id: int
+    vehicle_id: int,
 ) -> Tuple[float, float, float, float]:
     return GetVehicleRotationQuat(vehicle_id)
 
@@ -2699,7 +2701,7 @@ def create_player_3d_text_label(
         draw_distance,
         attached_player,
         attached_vehicle,
-        test_line_of_sight
+        test_line_of_sight,
     )
 
 
@@ -2718,10 +2720,7 @@ def gpci(playerid: int) -> str:
 
 
 def set_timer(
-    function: Callable,
-    interval_ms: int,
-    repeating: bool = False,
-    *args: Tuple
+    function: Callable, interval_ms: int, repeating: bool = False, *args: Tuple
 ) -> int:
     return SetTimer(function, interval_ms, repeating, *args)
 
@@ -2744,24 +2743,24 @@ def register_callback(name: str, arguments: str):
 
 on_gamemode_init = functools.partial(
     registry.register_callback,
-    'OnGameModeInit',
-    group='pysamp.on_gamemode_init',
+    "OnGameModeInit",
+    group="pysamp.on_gamemode_init",
 )
 
 on_gamemode_exit = functools.partial(
     registry.register_callback,
-    'OnGameModeExit',
-    group='pysamp.on_gamemode_exit',
+    "OnGameModeExit",
+    group="pysamp.on_gamemode_exit",
 )
 
 on_rcon_login_attempt = functools.partial(
     registry.register_callback,
-    'OnRconLoginAttempt',
-    group='pysamp.on_rcon_login_attempt',
+    "OnRconLoginAttempt",
+    group="pysamp.on_rcon_login_attempt",
 )
 
 on_incoming_connection = functools.partial(
     registry.register_callback,
-    'OnIncomingConnection',
-    group='pysamp.on_incoming_connection',
+    "OnIncomingConnection",
+    group="pysamp.on_incoming_connection",
 )
