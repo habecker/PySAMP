@@ -239,5 +239,14 @@ class Object:
         return set_objects_default_camera_col(disable)
 
     @event("OnObjectMoved")
-    def on_moved(cls, objectid: int):
-        return (cls(objectid),)
+    def on_moved(cls, object_id: int):
+        """This event is called when an object stops moving after
+        :meth:`Object.move()`.
+
+        :param int object_id: The ID of the object that was moved.
+        :returns: No return value.
+
+        .. note:: :meth:`set_position` does not work when used in this
+            event. To fix it, recreate the object.
+        """
+        return (cls(object_id),)

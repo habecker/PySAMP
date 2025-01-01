@@ -140,11 +140,31 @@ class Actor:
         return is_valid_actor(self.id)
 
     @event("OnActorStreamIn")
-    def on_stream_in(cls, actorid: int, forplayerid: int):
-        return (cls(actorid), Player(forplayerid))
+    def on_stream_in(cls, actor_id: int, for_player_id: int):
+        """This event is called when an actor is streamed in by a player's
+        client.
+
+        :param int actor_id: The ID of the actor.
+        :param int for_player_id: The ID of the player that streamed the
+        actor in.
+        :returns: No return value.
+
+        .. note:: This event can also be called by NPC.
+        """
+        return (cls(actor_id), Player(for_player_id))
 
     @event("OnActorStreamOut")
-    def on_stream_out(cls, actorid: int, forplayerid: int):
-        return (cls(actorid), Player(forplayerid))
+    def on_stream_out(cls, actor_id: int, for_player_id: int):
+        """This event is called when an actor is streamed out by a
+        player's client.
+
+        :param int actor_id: The ID of the actor.
+        :param int for_player_id: The ID of the player that streamed the
+        actor out.
+        :returns: No return value.
+
+        .. note:: This event can also be called by NPC.
+        """
+        return (cls(actor_id), Player(for_player_id))
 
 from pysamp.player import Player  # noqa

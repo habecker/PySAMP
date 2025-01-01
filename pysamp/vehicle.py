@@ -377,58 +377,180 @@ class Vehicle:
         return set_vehicle_virtual_world(self.id, world_id)
 
     @event("OnTrailerUpdate")
-    def on_trailer_update(cls, playerid: int, trailerid: int):
-        return (Player(playerid), cls(trailerid))
+    def on_trailer_update(cls, player_id: int, trailer_id: int):
+        """This event is called when the player sent a trailer update.
+
+        :param int player_id: The ID of the player who sent a trailer update.
+        :param int trailer_id: The trailer being updated.
+        :returns: No return value.
+
+        .. warning::
+            This event is called very frequently per second per trailer.
+            You should refrain from implementing intensive calculations
+            or intensive file writing/reading operations in this event.
+        """
+        return (Player(player_id), cls(trailer_id))
 
     @event("OnVehicleDamageStatusUpdate")
-    def on_damage_status_update(cls, vehicleid: int, playerid: int):
-        return (cls(vehicleid), Player(playerid))
+    def on_damage_status_update(cls, vehicle_id: int, player_id: int):
+        """This event is called when a vehicle element such as
+        doors, tyres, panels, or lights change their damage status.
+
+        :param int vehicle_id: The ID of the vehicle that was changed
+        its damage status.
+        :param int player_id: The ID of the player who synced the change in
+        the damage status (who had the car damaged or repaired)
+        :returns: No return value.
+
+        .. note:: This does not include vehicle health changes.
+        """
+        return (cls(vehicle_id), Player(player_id))
 
     @event("OnVehicleDeath")
-    def on_death(cls, vehicleid: int, killerid: int):
+    def on_death(cls, vehicle_id: int, killer_id: int):
+        """This event is called when a vehicle is destroyed - either by
+        exploding or becoming submerged in water.
+
+        :param int vehicle_id: The ID of the vehicle that was destroyed.
+        :param int killer_id: The ID of the player that reported the
+        vehicle's destruction (name is misleading). Generally the driver or
+        a passenger (if any) or the closest player.
+        :returns: No return value.
+
+        .. note::
+            This event will also be called when a vehicle enters water, but
+            the vehicle can be saved by teleportation or driving out.
+            The event won't be called a second time,\
+            and the vehicle may disappear when the driver exits, or after a short time.
+        """
         return (
-            cls(vehicleid),
-            Player(killerid) if killerid != INVALID_PLAYER_ID else killerid,
+            cls(vehicle_id),
+            Player(vehicle_id) if killer_id != INVALID_PLAYER_ID else killer_id,
         )
 
     @event("OnVehicleMod")
-    def on_mod(cls, playerid: int, vehicleid: int, componentid: int):
-        return (Player(playerid), cls(vehicleid), componentid)
+    def on_mod(cls, player_id: int, vehicle_id: int, component_id: int):
+        """This event is called when a vehicle is modded.
+
+        :param int player_id: The ID of the driver of the vehicle.
+        :param int vehicle_id: The ID of the vehicle which is modded.
+        :param int component_id: The ID of the component which was added to
+        the vehicle.
+        :returns: No return value.
+
+        .. note:: This event is NOT called by :meth:`Vehicle.add_component()`.
+        """
+        return (Player(player_id), cls(vehicle_id), component_id)
 
     @event("OnVehiclePaintjob")
-    def on_paintjob(cls, playerid: int, vehicleid: int, paintjobid: int):
-        return (Player(playerid), cls(vehicleid), paintjobid)
+    def on_paintjob(cls, player_id: int, vehicle_id: int, paintjob_id: int):
+        """This event is called when a player previews a vehicle paintjob
+        inside a mod shop.
+        Watch out, this event is NOT called when the player buys the paintjob.
+
+        :param int player_id: The ID of the player that changed the paintjob
+        of their vehicle.
+        :param int vehicle_id: The ID of the vehicle that had its
+        paintjob changed.
+        :param int paintjob_id: The ID of the new paintjob.
+        :returns: No return value.
+
+        .. note:: This event isn't called by :meth:`Vehicle.change_paintjob()`.
+        """
+        return (Player(player_id), cls(vehicle_id), paintjob_id)
 
     @event("OnVehicleRespray")
     def on_respray(
-        cls, playerid: int, vehicleid: int, color1: int, color2: int
+        cls, player_id: int, vehicle_id: int, color1: int, color2: int
     ):
-        return (Player(playerid), cls(vehicleid), color1, color2)
+        """This event is called when a player exits a mod shop, even if the
+        colors weren't changed.
+
+        Watch out, the name is ambiguous, Pay 'n' Spray shops don't call
+        this event.
+
+        :param int player_id: The ID of the player that is driving the vehicle.
+        :param int vehicle_id: The ID of the vehicle that was resprayed.
+        :param int color1: The color that the vehicle's primary color
+        was changed to.
+        :param int color2: The color that the vehicle's secondary color
+        was changed to.
+        :returns: No return value.
+
+        .. note::
+            This event is not called by :meth:`Vehicle.change_color()`.
+            Misleadingly, this event is not called for pay 'n' spray.
+
+        .. warning::
+            Known Bug(s): previewing a component inside a mod shop might call
+            this event.
+        """
+        return (Player(player_id), cls(vehicle_id), color1, color2)
 
     @event("OnVehicleSirenStateChange")
     def on_siren_state_change(
-        cls, playerid: int, vehicleid: int, newstate: int
+        cls, player_id: int, vehicle_id: int, new_state: int
     ):
-        return (Player(playerid), cls(vehicleid), newstate)
+        """This event is called when a vehicle's siren is toggled.
+
+        :param int player_id: The ID of the player that toggled the
+        siren (driver).
+        :param int vehicle_id: The ID of the vehicle of which the siren was
+        toggled for.
+        :param int new_state: ``0`` if siren was turned off, ``1`` if siren
+        was turned on.
+        :returns: No return value.
+
+        .. note::
+            This event is only called when a vehicle's siren is on or off,
+            NOT when the alternate siren is in use (holding horn).
+        """
+        return (Player(player_id), cls(vehicle_id), new_state)
 
     @event("OnVehicleSpawn")
-    def on_spawn(cls, vehicleid: int):
-        """When a vehicle is respawning only."""
-        return (cls(vehicleid),)
+    def on_spawn(cls, vehicle_id: int):
+        """This event is called when a vehicle respawns.
+
+        :param int vehicle_id: The ID of the vehicle that spawned.
+        :returns: No return value.
+
+        .. warning::
+            This event is called only when vehicle respawns!
+            :meth:`Vehicle.create()` and :meth:`add_static_vehicle/ex` won't
+            trigger this event.
+        """
+        return (cls(vehicle_id),)
 
     @event("OnVehicleStreamIn")
-    def on_stream_in(cls, vehicleid: int, forplayerid: int):
-        return (cls(vehicleid), Player(forplayerid))
+    def on_stream_in(cls, vehicle_id: int, for_player_id: int):
+        """This event is called when a vehicle is streamed for a
+        player's client.
+
+        :param int vehicle_id: The ID of the vehicle that streamed in
+        for the player.
+        :param int for_player_id: The ID of the player who the vehicle
+        streamed in for.
+        :returns: No return value.
+        """
+        return (cls(vehicle_id), Player(for_player_id))
 
     @event("OnVehicleStreamOut")
-    def on_stream_out(cls, vehicleid: int, forplayerid: int):
-        return (cls(vehicleid), Player(forplayerid))
+    def on_stream_out(cls, vehicle_id: int, for_player_id: int):
+        """This event is called when a vehicle is streamed out for a
+        player's client
+
+        :param int vehicle_id: The ID of the vehicle that streamed out.
+        :param int for_player_id: The ID of the player who is no longer
+        streaming the vehicle.
+        :returns: No return value.
+        """
+        return (cls(vehicle_id), Player(for_player_id))
 
     @event("OnUnoccupiedVehicleUpdate")
     def on_unoccupied_update(
         cls,
-        vehicleid: int,
-        playerid: int,
+        vehicle_id: int,
+        player_id: int,
         passenger_seat: int,
         new_x: float,
         new_y: float,
@@ -437,9 +559,52 @@ class Vehicle:
         vel_y: float,
         vel_z: float,
     ):
+        """This event is called when a player's client updates / syncs the
+        position of a vehicle they're not driving.
+        This can happen outside of the vehicle or when the player is a
+        passenger of a vehicle that has no driver.
+
+        :param int vehicle_id: The ID of the vehicle that's position
+        was updated.
+        :param int player_id: The ID of the player that sent a vehicle
+        position sync update.
+        :param int passenget_seat: The ID of the seat if the player
+        is a passenger.
+        :param float new_x: The new X coordinate of the vehicle.
+        :param float new_y: The new Y coordinate of the vehicle.
+        :param float new_z: The new Z coordinate of the vehicle.
+        :param float vel_x: The new X velocity of the vehicle.
+        :param float vel_y: The new Y velocity of the vehicle.
+        :param float vel_z: The new Z velocity of the vehicle.
+        :returns: No return value.
+
+        .. list-table:: Seats
+            :header-rows: 1
+
+            * - ID
+              - Definition
+            * - 0
+              - Not in vehicle
+            * - 1
+              - Front passenger
+            * - 2
+              - Backleft
+            * - 3
+              - Backright
+            * - 4+
+              - Coach/Bus etc.
+
+        .. warning::
+            This event is called very frequently per second per
+            unoccupied vehicle.
+            You should refrain from implementing intensive calculations or
+            intensive file writing/reading operations in this event.
+            :meth:`Vehicle.get_pos()` will return the old coordinates of
+            the vehicle before this update.
+        """
         return (
-            cls(vehicleid),
-            Player(playerid),
+            cls(vehicle_id),
+            Player(player_id),
             passenger_seat,
             new_x,
             new_y,

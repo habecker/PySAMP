@@ -390,8 +390,15 @@ class PlayerObject:
         )
 
     @event("OnPlayerObjectMoved")
-    def on_moved(cls, playerid: int, objectid: int):
-        return (cls(objectid, playerid), Player(playerid))
+    def on_moved(cls, player_id: int, object_id: int):
+        """This event is called when a player object is moved after
+        :meth:`PlayerObject.move()` (when it stops moving).
+
+        :param int player_id: The player id the object is assigned to.
+        :param int object_id: The ID of the player object that was moved.
+        :returns: No return value.
+        """
+        return (cls(object_id, player_id), Player(object_id))
 
 from pysamp.player import Player  # noqa
 from pysamp.vehicle import Vehicle  # noqa
